@@ -10,9 +10,66 @@ use Illuminate\Http\Request;
 class PropertyController extends Controller
 {
     // GET /api/properties
-    public function index()
+    public function index(Request $request)
     {
-        $properties = Property::with(['category', 'propertyType', 'images'])->get();
+        $query = Property::with(['category', 'propertyType', 'images']);
+
+        // 1. Search (title ili description)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // 2. Filter by category
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        // 3. Filter by property type
+        if ($request->filled('property_type')) {
+            $query->where('property_type_id', $request->property_type);
+        }
+
+        // 4. Filter by location
+        if ($request->filled('location')) {
+            $query->where('location', 'like', "%{$request->location}%");
+        }
+
+        // 5. Filter by price range
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+
+        // 6. Sorting
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'name_asc':
+                    $query->orderBy('title', 'asc');
+                    break;
+                case 'name_desc':
+                    $query->orderBy('title', 'desc');
+                    break;
+                case 'price_asc':
+                    $query->orderBy('price', 'asc');
+                    break;
+                case 'price_desc':
+                    $query->orderBy('price', 'desc');
+                    break;
+                default:
+                    $query->latest();
+            }
+        } else {
+            $query->latest();
+        }
+
+        $properties = $query->paginate(12);
+        
         return response()->json($properties);
     }
 
