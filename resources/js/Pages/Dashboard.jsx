@@ -1,26 +1,21 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import React from 'react';
+import Layout from '@/Layouts/Layout';
 import { Head } from '@inertiajs/react';
 
-export default function Dashboard() {
+export default function Dashboard({ auth }) {
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Dashboard
-                </h2>
-            }
-        >
+        <Layout>
             <Head title="Dashboard" />
-
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                        <div className="p-6 text-gray-900">
-                            You're logged in!
-                        </div>
-                    </div>
-                </div>
+            
+            <div className="bg-white rounded-lg shadow-md p-6">
+                <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+                <p className="text-gray-600">
+                    Welcome, {auth.user.name}!
+                </p>
+                <p className="text-gray-500 mt-2">
+                    Your role: {auth.user.role}
+                </p>
             </div>
-        </AuthenticatedLayout>
+        </Layout>
     );
 }
