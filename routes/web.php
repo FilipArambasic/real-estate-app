@@ -4,17 +4,18 @@ use App\Http\Controllers\API\PropertyController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\PropertyTypeController;
 use App\Http\Controllers\API\InquiryController;
+use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// ========== BREEZE RUTE (auth, login, register, dashboard) ==========
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-    ]);
-});
+// ========== PUBLIC PAGE RUTE ==========
+Route::get('/', [PageController::class, 'home'])->name('home');
+Route::get('/properties', [PageController::class, 'properties'])->name('properties.index');
+Route::get('/properties/{id}', [PageController::class, 'propertyDetails'])->name('properties.show');
+Route::get('/category/{id}', [PageController::class, 'category'])->name('category.show');
+Route::get('/categories', [PageController::class, 'categories'])->name('categories.index');
 
+// ========== BREEZE RUTE (auth, login, register, dashboard) ==========
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
