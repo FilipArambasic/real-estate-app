@@ -5,13 +5,15 @@ export default function Layout({ children }) {
     const { auth } = usePage().props;
     const user = auth?.user;
 
+    console.log('Auth prop:', auth); // Ovo ćeš vidjeti u konzoli – za debugging
+
     return (
         <div className="min-h-screen flex flex-col bg-gray-100">
             {/* Header / Navigation */}
             <nav className="bg-white shadow-md">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16">
-                        {/* Logo / Home link */}
+                        {/* Logo */}
                         <div className="flex items-center">
                             <Link href="/" className="text-xl font-bold text-blue-600">
                                 KnightX Real Estate
@@ -64,14 +66,14 @@ export default function Layout({ children }) {
                 </div>
             </nav>
 
-            {/* Main content - grows to push footer down */}
+            {/* Main content */}
             <main className="flex-grow py-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {children}
                 </div>
             </main>
 
-            {/* Footer - stays at bottom */}
+            {/* Footer */}
             <footer className="bg-white shadow-md">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <p className="text-center text-gray-500">
