@@ -18,6 +18,8 @@ export default function Show({ property }) {
     const [submitting, setSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState('');
+    const [lightboxOpen, setLightboxOpen] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     const handleChange = (e) => {
         setInquiry({ ...inquiry, [e.target.name]: e.target.value });
@@ -43,32 +45,91 @@ export default function Show({ property }) {
         }
     };
 
+    const openLightbox = (index) => {
+        setCurrentImageIndex(index);
+        setLightboxOpen(true);
+    };
+
+    const closeLightbox = () => {
+        setLightboxOpen(false);
+    };
+
+    const nextImage = () => {
+        setCurrentImageIndex((prev) => (prev + 1) % property.images.length);
+    };
+
+    const prevImage = () => {
+        setCurrentImageIndex((prev) => (prev - 1 + property.images.length) % property.images.length);
+    };
+
+    const goToPreviousImage = () => {
+        if (!property.images || property.images.length <= 1) return;
+        const currentIndex = property.images.findIndex(img => img.image_url === mainImage);
+        const prevIndex = (currentIndex - 1 + property.images.length) % property.images.length;
+        setMainImage(property.images[prevIndex].image_url);
+    };
+
+    const goToNextImage = () => {
+        if (!property.images || property.images.length <= 1) return;
+        const currentIndex = property.images.findIndex(img => img.image_url === mainImage);
+        const nextIndex = (currentIndex + 1) % property.images.length;
+        setMainImage(property.images[nextIndex].image_url);
+    };
+
     return (
         <Layout>
             <Head title={property.title} />
 
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                {/* Main image */}
-                <img 
-                    src={mainImage} 
-                    alt={property.title}
-                    className="w-full h-96 object-cover"
-                />
-
-                {/* Thumbnails - klikom mijenjaju glavnu sliku */}
-                {property.images && property.images.length > 1 && (
-                    <div className="flex gap-2 p-4 bg-gray-50 overflow-x-auto">
-                        {property.images.map((img, idx) => (
-                            <img 
-                                key={idx}
-                                src={img.image_url}
-                                alt={`${property.title} - ${idx + 1}`}
-                                className={`w-24 h-24 object-cover rounded cursor-pointer hover:opacity-80 transition ${mainImage === img.image_url ? 'ring-2 ring-blue-500' : ''}`}
-                                onClick={() => setMainImage(img.image_url)}
-                            />
-                        ))}
+                {/* Main image with navigation arrows */}
+                <div className="relative">
+                    <div className="relative w-full h-96 bg-gray-100 flex items-center justify-center">
+                        <img 
+                            src={mainImage} 
+                            alt={property.title}
+                            className="max-w-full max-h-full object-contain cursor-pointer"
+                            onClick={() => {
+                                const index = property.images?.findIndex(img => img.image_url === mainImage);
+                                openLightbox(index >= 0 ? index : 0);
+                            }}
+                        />
+                        
+                        {/* Left arrow */}
+                        {property.images && property.images.length > 1 && (
+                            <button
+                                onClick={goToPreviousImage}
+                                className="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white text-3xl w-12 h-12 rounded-full hover:bg-opacity-75 hover:scale-110 transition focus:outline-none flex items-center justify-center"
+                            >
+                                ‹
+                            </button>
+                        )}
+                        
+                        {/* Right arrow */}
+                        {property.images && property.images.length > 1 && (
+                            <button
+                                onClick={goToNextImage}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white text-3xl w-12 h-12 rounded-full hover:bg-opacity-75 hover:scale-110 transition focus:outline-none flex items-center justify-center"
+                            >
+                                ›
+                            </button>
+                        )}
                     </div>
-                )}
+
+                    {/* Thumbnails */}
+                    {property.images && property.images.length > 1 && (
+                        <div className="flex gap-2 p-4 bg-gray-50 overflow-x-auto">
+                            {property.images.map((img, idx) => (
+                                <img 
+                                    key={idx}
+                                    src={img.image_url}
+                                    alt={`${property.title} - ${idx + 1}`}
+                                    className={`w-24 h-24 object-cover rounded cursor-pointer hover:opacity-80 transition ${mainImage === img.image_url ? 'ring-2 ring-blue-500' : ''}`}
+                                    onClick={() => setMainImage(img.image_url)}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
 
                 <div className="p-6">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -188,6 +249,46 @@ export default function Show({ property }) {
                     </div>
                 </div>
             </div>
+
+            {/* Lightbox */}
+            {lightboxOpen && property.images && property.images.length > 0 && (
+                <div 
+                    className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center"
+                    onClick={closeLightbox}
+                >
+                    <button 
+                        className="absolute top-4 right-4 text-white text-3xl hover:text-gray-300 z-10"
+                        onClick={closeLightbox}
+                    >
+                        ✕
+                    </button>
+                    
+                    <button 
+                        className="absolute left-4 text-white text-4xl hover:text-gray-300 z-10"
+                        onClick={(e) => { e.stopPropagation(); prevImage(); }}
+                    >
+                        ‹
+                    </button>
+                    
+                    <img 
+                        src={property.images[currentImageIndex].image_url}
+                        alt={property.title}
+                        className="max-w-[90vw] max-h-[90vh] object-contain"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                    
+                    <button 
+                        className="absolute right-4 text-white text-4xl hover:text-gray-300 z-10"
+                        onClick={(e) => { e.stopPropagation(); nextImage(); }}
+                    >
+                        ›
+                    </button>
+                    
+                    <div className="absolute bottom-4 left-0 right-0 text-center text-white">
+                        {currentImageIndex + 1} / {property.images.length}
+                    </div>
+                </div>
+            )}
         </Layout>
     );
 }

@@ -29,7 +29,8 @@ class InquiryController extends Controller
         $validated['status'] = 'new';
         
         $inquiry = Inquiry::create($validated);
-        return response()->json($inquiry, 201);
+
+        return redirect()->back()->with('success', 'Inquiry sent successfully!');
     }
 
     // PUT /api/inquiries/{id} (admin only)

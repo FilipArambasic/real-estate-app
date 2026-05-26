@@ -47,7 +47,18 @@ class PropertyController extends Controller
             'number_of_rooms' => 'required|integer|min:0',
         ]);
 
-        Property::create($validated);
+        $property = Property::create($validated);
+
+        // Dodaj slike
+        if ($request->filled('images')) {
+            $images = explode("\n", $request->images);
+            foreach ($images as $imageUrl) {
+                $imageUrl = trim($imageUrl);
+                if (!empty($imageUrl)) {
+                    $property->images()->create(['image_url' => $imageUrl]);
+                }
+            }
+        }
 
         return redirect()->route('admin.properties.index')
             ->with('success', 'Property created successfully');
@@ -55,7 +66,7 @@ class PropertyController extends Controller
 
     public function edit($id)
     {
-        $property = Property::findOrFail($id);
+        $property = Property::with('images')->findOrFail($id);  // ← DODAO 'images'
         $categories = Category::all();
         $propertyTypes = PropertyType::all();
         
@@ -69,7 +80,7 @@ class PropertyController extends Controller
     public function update(Request $request, $id)
     {
         $property = Property::findOrFail($id);
-        
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -83,6 +94,19 @@ class PropertyController extends Controller
         ]);
 
         $property->update($validated);
+
+        // Ažuriraj slike
+        if ($request->filled('images')) {
+            $property->images()->delete(); // obriši stare
+            
+            $images = explode("\n", $request->images);
+            foreach ($images as $imageUrl) {
+                $imageUrl = trim($imageUrl);
+                if (!empty($imageUrl)) {
+                    $property->images()->create(['image_url' => $imageUrl]);
+                }
+            }
+        }
 
         return redirect()->route('admin.properties.index')
             ->with('success', 'Property updated successfully');

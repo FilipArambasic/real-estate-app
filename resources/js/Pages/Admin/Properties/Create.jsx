@@ -13,6 +13,7 @@ export default function Create({ categories, propertyTypes }) {
         address: '',
         square_meters: '',
         number_of_rooms: '',
+        images: '',
     });
     const [submitting, setSubmitting] = useState(false);
 
@@ -148,7 +149,22 @@ export default function Create({ categories, propertyTypes }) {
                                 required
                                 rows="5"
                                 className="w-full border rounded-lg px-3 py-2"
-                            ></textarea>
+                            />
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label className="block text-gray-700 mb-1">Image URLs (one per line)</label>
+                            <textarea
+                                name="images"
+                                value={form.images}
+                                onChange={handleChange}
+                                rows="4"
+                                placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg&#10;https://example.com/image3.jpg"
+                                className="w-full border rounded-lg px-3 py-2"
+                            />
+                            <p className="text-sm text-gray-500 mt-1">
+                                Enter each image URL on a new line. First image will be the main one.
+                            </p>
                         </div>
                     </div>
 

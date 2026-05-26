@@ -25,13 +25,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     
     // Properties CRUD
-    Route::resource('properties', AdminPropertyController::class);
+    Route::resource('properties', AdminPropertyController::class)->names('admin.properties');
     
     // Categories CRUD
-    Route::resource('categories', AdminCategoryController::class);
+    Route::resource('categories', AdminCategoryController::class)->names('admin.categories');
     
     // Property Types CRUD
-    Route::resource('property-types', AdminPropertyTypeController::class);
+    Route::resource('property-types', AdminPropertyTypeController::class)->names('admin.property-types');
     
     // Inquiries
     Route::get('/inquiries', [AdminInquiryController::class, 'index'])->name('admin.inquiries.index');
