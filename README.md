@@ -86,6 +86,7 @@ php artisan serve
 
 # Terminal 2 - Frontend (Vite)
 npm run dev
+```
 
 --- 
 
